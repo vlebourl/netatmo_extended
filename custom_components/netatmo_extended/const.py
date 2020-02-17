@@ -3,7 +3,7 @@ from datetime import timedelta
 
 API = "api"
 
-DOMAIN = "netatmo"
+DOMAIN = "netatmo_extended"
 MANUFACTURER = "Netatmo"
 
 AUTH = "netatmo_auth"
