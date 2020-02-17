@@ -1,5 +1,5 @@
 {
-  "domain": "netatmo",
+  "domain": "netatmo_extended",
   "name": "Netatmo_extended",
   "documentation": "https://www.home-assistant.io/integrations/netatmo",
   "requirements": [
