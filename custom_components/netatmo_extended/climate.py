@@ -241,12 +241,11 @@ class NetatmoThermostat(ClimateDevice):
         if self._module_type == NA_THERM:
             return CURRENT_HVAC_MAP_NETATMO[self._data.boilerstatus]
         # Maybe it is a valve
-        if self._room_id in self._data.room_status:
-            if (
-                self._data.room_status[self._room_id].get("heating_power_request", 0)
-                > 0
-            ):
-                return CURRENT_HVAC_HEAT
+        if self._room_id in self._data.room_status and (
+            self._data.room_status[self._room_id].get("heating_power_request", 0)
+            > 0
+        ):
+            return CURRENT_HVAC_HEAT
         return CURRENT_HVAC_IDLE
 
     def set_hvac_mode(self, hvac_mode: str) -> None:
@@ -455,11 +454,10 @@ class ThermostatData:
             return
         for room in self.homestatus.rooms:
             try:
-                roomstatus = {}
                 homestatus_room = self.homestatus.rooms[room]
                 homedata_room = self.homedata.rooms[self.home_id][room]
 
-                roomstatus["roomID"] = homestatus_room["id"]
+                roomstatus = {"roomID": homestatus_room["id"]}
                 if homestatus_room["reachable"]:
                     roomstatus["roomname"] = homedata_room["name"]
                     roomstatus["target_temperature"] = homestatus_room[
@@ -510,9 +508,10 @@ class ThermostatData:
                         batterypct = interpolate(
                             batterylevel, roomstatus["module_type"]
                         )
-                        if roomstatus.get("battery_level") is None:
-                            roomstatus["battery_level"] = batterypct
-                        elif batterypct < roomstatus["battery_level"]:
+                        if (
+                            roomstatus.get("battery_level") is None
+                            or batterypct < roomstatus["battery_level"]
+                        ):
                             roomstatus["battery_level"] = batterypct
                 self.room_status[room] = roomstatus
             except KeyError as err:

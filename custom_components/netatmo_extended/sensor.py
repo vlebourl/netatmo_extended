@@ -101,10 +101,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities = []
         for module in all_module_infos.values():
             _LOGGER.debug("Adding module %s %s", module["module_name"], module["id"])
-            for condition in data.station_data.monitoredConditions(
-                moduleId=module["id"]
-            ):
-                entities.append(NetatmoSensor(data, module, condition.lower()))
+            entities.extend(
+                NetatmoSensor(data, module, condition.lower())
+                for condition in data.station_data.monitoredConditions(
+                    moduleId=module["id"]
+                )
+            )
+
         return entities
 
     def get_entities():
@@ -251,7 +254,7 @@ class NetatmoSensor(Entity):
                     self._state = "Medium"
                 elif data["battery_vp"] >= 4360:
                     self._state = "Low"
-                elif data["battery_vp"] < 4360:
+                else:
                     self._state = "Very Low"
             elif self.type == "battery_vp" and self._module_type == MODULE_TYPE_RAIN:
                 if data["battery_vp"] >= 5500:
@@ -262,7 +265,7 @@ class NetatmoSensor(Entity):
                     self._state = "Medium"
                 elif data["battery_vp"] >= 4000:
                     self._state = "Low"
-                elif data["battery_vp"] < 4000:
+                else:
                     self._state = "Very Low"
             elif self.type == "battery_vp" and self._module_type == MODULE_TYPE_INDOOR:
                 if data["battery_vp"] >= 5640:
@@ -273,7 +276,7 @@ class NetatmoSensor(Entity):
                     self._state = "Medium"
                 elif data["battery_vp"] >= 4560:
                     self._state = "Low"
-                elif data["battery_vp"] < 4560:
+                else:
                     self._state = "Very Low"
             elif self.type == "battery_vp" and self._module_type == MODULE_TYPE_OUTDOOR:
                 if data["battery_vp"] >= 5500:
@@ -284,7 +287,7 @@ class NetatmoSensor(Entity):
                     self._state = "Medium"
                 elif data["battery_vp"] >= 4000:
                     self._state = "Low"
-                elif data["battery_vp"] < 4000:
+                else:
                     self._state = "Very Low"
             elif self.type == "min_temp":
                 self._state = data["min_temp"]

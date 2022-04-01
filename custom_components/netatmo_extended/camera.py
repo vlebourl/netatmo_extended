@@ -79,9 +79,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
         persons = service.data.get(ATTR_PERSONS)
         person_ids = []
         for person in persons:
-            for p in camera_data.camera_data.persons.items():
-                if p[1]["pseudo"] == person:
-                    person_ids.append(p[0])
+            person_ids.extend(
+                p[0]
+                for p in camera_data.camera_data.persons.items()
+                if p[1]["pseudo"] == person
+            )
+
         camera_data.camera_data.set_persons_home(
             person_ids=person_ids, home_id=camera_data.camera_data.default_home_id
         )
@@ -211,20 +214,19 @@ class NetatmoCamera(Camera):
     @property
     def device_state_attributes(self):
         """Return the Netatmo-specific camera state attributes."""
-        attr = {}
-        attr["id"] = self._camera_id
-        attr["status"] = self._status
-        attr["sd_status"] = self._sd_status
-        attr["alim_status"] = self._alim_status
-        attr["is_local"] = self._is_local
-        attr["vpn_url"] = self._vpnurl
-
-        return attr
+        return {
+            "id": self._camera_id,
+            "status": self._status,
+            "sd_status": self._sd_status,
+            "alim_status": self._alim_status,
+            "is_local": self._is_local,
+            "vpn_url": self._vpnurl,
+        }
 
     @property
     def available(self):
         """Return True if entity is available."""
-        return bool(self._alim_status == "on")
+        return self._alim_status == "on"
 
     @property
     def supported_features(self):
@@ -234,7 +236,7 @@ class NetatmoCamera(Camera):
     @property
     def is_recording(self):
         """Return true if the device is recording."""
-        return bool(self._status == "on")
+        return self._status == "on"
 
     @property
     def brand(self):
@@ -244,7 +246,7 @@ class NetatmoCamera(Camera):
     @property
     def motion_detection_enabled(self):
         """Return the camera motion detection status."""
-        return bool(self._status == "on")
+        return self._status == "on"
 
     @property
     def is_on(self):
